@@ -1,1 +1,3 @@
 # Limadou-Event-Display
+
+CamelCase
