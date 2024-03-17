@@ -1,5 +1,6 @@
 #ifndef CLUSTER_H
-#define CLUSTEr_H
+#define CLUSTER_H
+
 
 
 class Cluster
