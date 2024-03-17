@@ -5,7 +5,8 @@
 
 class Cluster
 {
-    
+int fX;    
+
         
 
 };
