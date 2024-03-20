@@ -11,7 +11,7 @@ class Cluster {
   int GetX() const;
   int GetY() const;
   int GetClusterSize() const;
-  uint8_t* GetArrayShape();
+  uint8_t *GetArrayShape();
 };
 
 #endif // CLUSTERING_INCLUDE_CLUSTER_H_
