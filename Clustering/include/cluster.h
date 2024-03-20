@@ -7,6 +7,7 @@ class Cluster {
   int ClusterSize;
 
   int GetX() const;
+  int GetY() const;
 };
 
 #endif // CLUSTERING_INCLUDE_CLUSTER_H_
