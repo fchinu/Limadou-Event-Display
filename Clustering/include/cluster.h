@@ -1,14 +1,14 @@
-#ifndef CLUSTER_H
-#define CLUSTER_H
+#ifndef CLUSTERING_INCLUDE_CLUSTER_H_
+#define CLUSTERING_INCLUDE_CLUSTER_H_
 
+class Cluster {
+  int fX;
+  int fY;
+  int ClusterSize;
 
-
-class Cluster
-{
-int fX;    
-
-        
-
+  int GetX() const;
+  int GetY() const;
+  int GetClusterSize() const;
 };
 
-#endif
+#endif // CLUSTERING_INCLUDE_CLUSTER_H_
