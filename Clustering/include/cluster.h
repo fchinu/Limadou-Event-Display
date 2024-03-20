@@ -5,8 +5,8 @@
 
 class Cluster
 {
-int fX;    
-
+    int fX;    
+    int ClusterSize;
         
 
 };
