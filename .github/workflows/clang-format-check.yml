@@ -1,13 +1,32 @@
-name: clang-format Check
-on: [pull_request]
+---
+name: Lint
+
+on:  # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
+
 jobs:
-  formatting-check:
-    name: Formatting Check
+  build:
+    name: Lint
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      # To report GitHub Actions status checks
+      statuses: write
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Run clang-format style check for C/C++/Protobuf programs.
-      uses: jidicula/clang-format-action@v4.11.0
-      with:
-        clang-format-version: '13'
-        fallback-style: 'Mozilla' # optional
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # super-linter needs the full git history to get the
+          # list of files that changed across commits
+          fetch-depth: 0
+
+      - name: Super-linter
+        uses: super-linter/super-linter@v6.3.0  # x-release-please-version
+        env:
+          # To report GitHub Actions status checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+...
