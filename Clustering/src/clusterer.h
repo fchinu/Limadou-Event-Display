@@ -1,26 +1,19 @@
 #pragma once
 
-#include <vector>
 #include "../include/cluster.h"
+#include <vector>
 
-class Clusterer
-{
+class Clusterer {
 
-    public:
-        Clusterer();
-        ~Clusterer();
+public:
+  Clusterer();
+  ~Clusterer();
 
-        void Clustering(const char * inputFile);
-        
-    protected: 
+  void Clustering(const char *inputFile);
 
-        void clearClusters() {fClusters.clear();};
+protected:
+  void clearClusters() { fClusters.clear(); };
 
-    private:
-
-    std::vector<Cluster> fClusters;
-
-
-    
-
+private:
+  std::vector<Cluster> fClusters;
 };
