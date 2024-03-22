@@ -19,8 +19,4 @@ class Clusterer
     private:
 
     std::vector<Cluster> fClusters;
-
-
-    
-
 };

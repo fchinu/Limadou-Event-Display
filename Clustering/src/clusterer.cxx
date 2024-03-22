@@ -84,6 +84,7 @@ void Clusterer::Clustering(const char *inputFile) {
       Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
                       static_cast<unsigned>(ievent), minX, minY, shape, meanX,
                       meanY, clusterSize);
+
       fClusters.push_back(cluster);
 
       // Remove processed indices from the vector

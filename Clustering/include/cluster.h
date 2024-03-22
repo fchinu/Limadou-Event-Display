@@ -1,14 +1,17 @@
-#ifndef CLUSTER_H
-#define CLUSTER_H
+#ifndef CLUSTERING_INCLUDE_CLUSTER_H_
+#define CLUSTERING_INCLUDE_CLUSTER_H_
 
+#include <cstdint>
+class Cluster {
+  int fX;
+  int fY;
+  int fClusterSize;
+  uint8_t fArrayShape[8];
 
-
-class Cluster
-{
-int fX;    
-
-        
-
+  int GetX() const;
+  int GetY() const;
+  int GetClusterSize() const;
+  uint8_t *GetArrayShape();
 };
 
-#endif
+#endif // CLUSTERING_INCLUDE_CLUSTER_H_
