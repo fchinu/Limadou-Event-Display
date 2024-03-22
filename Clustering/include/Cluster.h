@@ -1,5 +1,4 @@
-#ifndef CLUSTERING_INCLUDE_CLUSTER_H_
-#define CLUSTERING_INCLUDE_CLUSTER_H_
+#pragma once
 
 #define MAX_CLUSTER_ROWS 8
 #define MAX_CLUSTER_COLS 8
@@ -11,15 +10,25 @@ class Cluster {
 
 public:
   Cluster(
-      unsigned chipId, unsigned eventId, unsigned clusterPositionX,
-      unsigned clusterPositionY, unsigned clusterSize,
+      unsigned chipId, unsigned eventId, float meanX, float meanY,
+      unsigned clusterPositionX, unsigned clusterPositionY,
       std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape);
-  inline unsigned GetMeanX() const { return fMeanX; }
-  inline unsigned GetMeanY() const { return fMeanY; }
-  inline unsigned GetClusterSize() const { return fClusterSize; }
+  Cluster(
+      unsigned chipId, unsigned eventId, unsigned clusterPositionX,
+      unsigned clusterPositionY,
+      std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape);
+
+  inline unsigned GetChipId() const { return fChipId; }
+  inline unsigned GetEventId() const { return fEventId; }
+  inline unsigned GetClusterPositionX() const { return fClusterPositionX; }
+  inline unsigned GetClusterPositionY() const { return fClusterPositionY; }
   std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> GetShape() const {
     return fShape;
   }
+  inline float GetMeanX() const { return fMeanX; }
+  inline float GetMeanY() const { return fMeanY; }
+  inline unsigned GetClusterSize() const { return fClusterSize; }
+  inline unsigned GetClusterId() const { return fClusterId; }
 
 private:
   unsigned fChipId;
@@ -30,17 +39,21 @@ private:
   double fMeanX;
   double fMeanY;
   unsigned fClusterSize;
+  unsigned fClusterId;
+
+  inline static unsigned fClusterCounter = 0;
 };
 
 Cluster::Cluster(
     unsigned chipId, unsigned eventId, unsigned clusterPositionX,
-    unsigned clusterPositionY, unsigned clusterSize,
+    unsigned clusterPositionY,
     std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape)
     : fChipId(chipId), fEventId(eventId), fClusterPositionX(clusterPositionX),
-      fClusterPositionY(clusterPositionY), fShape(arrayShape) {
+      fClusterPositionY(clusterPositionY), fClusterSize(0), fShape(arrayShape),
+      fClusterId(fClusterCounter++) {
 
   for (unsigned i = 0; i < MAX_CLUSTER_ROWS; i++) {
-    for (unsigned j = 0; j < MAX_CLUSTER_ROWS; j++) {
+    for (unsigned j = 0; j < MAX_CLUSTER_COLS; j++) {
       if (fShape[i][j]) {
         fMeanX += i;
         fMeanY -= j; // fClusterPositionY is top row, so we need to
@@ -56,4 +69,16 @@ Cluster::Cluster(
   fMeanY += fClusterPositionY;
 }
 
-#endif // CLUSTERING_INCLUDE_CLUSTER_H_
+Cluster::Cluster(
+    unsigned chipId, unsigned eventId, float meanX, float meanY,
+    unsigned clusterPositionX, unsigned clusterPositionY,
+    std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape)
+    : fChipId(chipId), fEventId(eventId), fMeanX(meanX), fMeanY(meanY),
+      fClusterPositionX(clusterPositionX), fClusterPositionY(clusterPositionY),
+      fClusterSize(0), fShape(arrayShape), fClusterId(fClusterCounter++) {
+
+  for (unsigned i = 0; i < MAX_CLUSTER_ROWS; i++)
+    for (unsigned j = 0; j < MAX_CLUSTER_COLS; j++)
+      if (fShape[i][j])
+        fClusterSize++;
+}
