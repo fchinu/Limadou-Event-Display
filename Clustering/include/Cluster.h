@@ -10,16 +10,16 @@ class Cluster {
 
 public:
   Cluster(
-      unsigned chipId, unsigned eventId, float meanX, float meanY,
+      unsigned chipID, unsigned eventID, float meanX, float meanY,
       unsigned clusterPositionX, unsigned clusterPositionY,
       std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape);
   Cluster(
-      unsigned chipId, unsigned eventId, unsigned clusterPositionX,
+      unsigned chipID, unsigned eventID, unsigned clusterPositionX,
       unsigned clusterPositionY,
       std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape);
 
-  inline unsigned GetChipId() const { return fChipId; }
-  inline unsigned GetEventId() const { return fEventId; }
+  inline unsigned GetChipID() const { return fChipID; }
+  inline unsigned GetEventID() const { return fEventID; }
   inline unsigned GetClusterPositionX() const { return fClusterPositionX; }
   inline unsigned GetClusterPositionY() const { return fClusterPositionY; }
   std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> GetShape() const {
@@ -28,29 +28,29 @@ public:
   inline float GetMeanX() const { return fMeanX; }
   inline float GetMeanY() const { return fMeanY; }
   inline unsigned GetClusterSize() const { return fClusterSize; }
-  inline unsigned GetClusterId() const { return fClusterId; }
+  inline unsigned GetClusterID() const { return fClusterID; }
 
 private:
-  unsigned fChipId;
-  unsigned fEventId;
+  unsigned fChipID;
+  unsigned fEventID;
   unsigned fClusterPositionX;
   unsigned fClusterPositionY;
   std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> fShape;
   double fMeanX;
   double fMeanY;
   unsigned fClusterSize;
-  unsigned fClusterId;
+  unsigned fClusterID;
 
   inline static unsigned fClusterCounter = 0;
 };
 
 Cluster::Cluster(
-    unsigned chipId, unsigned eventId, unsigned clusterPositionX,
+    unsigned chipID, unsigned eventID, unsigned clusterPositionX,
     unsigned clusterPositionY,
     std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape)
-    : fChipId(chipId), fEventId(eventId), fClusterPositionX(clusterPositionX),
+    : fChipID(chipID), fEventID(eventID), fClusterPositionX(clusterPositionX),
       fClusterPositionY(clusterPositionY), fClusterSize(0), fShape(arrayShape),
-      fClusterId(fClusterCounter++) {
+      fClusterID(fClusterCounter++) {
 
   for (unsigned i = 0; i < MAX_CLUSTER_ROWS; i++) {
     for (unsigned j = 0; j < MAX_CLUSTER_COLS; j++) {
@@ -70,12 +70,12 @@ Cluster::Cluster(
 }
 
 Cluster::Cluster(
-    unsigned chipId, unsigned eventId, float meanX, float meanY,
+    unsigned chipID, unsigned eventID, float meanX, float meanY,
     unsigned clusterPositionX, unsigned clusterPositionY,
     std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> arrayShape)
-    : fChipId(chipId), fEventId(eventId), fMeanX(meanX), fMeanY(meanY),
+    : fChipID(chipID), fEventID(eventID), fMeanX(meanX), fMeanY(meanY),
       fClusterPositionX(clusterPositionX), fClusterPositionY(clusterPositionY),
-      fClusterSize(0), fShape(arrayShape), fClusterId(fClusterCounter++) {
+      fClusterSize(0), fShape(arrayShape), fClusterID(fClusterCounter++) {
 
   for (unsigned i = 0; i < MAX_CLUSTER_ROWS; i++)
     for (unsigned j = 0; j < MAX_CLUSTER_COLS; j++)
