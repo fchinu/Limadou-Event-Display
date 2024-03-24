@@ -50,7 +50,7 @@ void Clusterer::Clustering(const char *inputFile) {
 
         bool isValid = false;
         for (int j : nextIndices) {
-          if (std::abs(x[index] - x[j]) == 1 + std::abs(y[index] - y[j]) <= 1)
+          if (std::abs(x[index] - x[j]) + std::abs(y[index] - y[j]) <= 1)
             isValid = true;
         }
 
