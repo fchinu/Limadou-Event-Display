@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/cluster.h"
+#include "../include/Cluster.h"
 #include <vector>
 
 class Clusterer {

@@ -23,6 +23,7 @@ void Clusterer::Clustering(const char *inputFile) {
   double *chipID = inputData.getColumn("chip_id(decimal)");
   double *x = inputData.getColumn("hit_x");
   double *y = inputData.getColumn("hit_y");
+  std::cout<< "chipID.size():" << sizeof(chipID)/sizeof(*chipID) << std::endl;
 
   for (int irow = 0; irow < inputData.getNRows(); irow++) {
     eventIndices[event[irow]].push_back(irow);
@@ -36,18 +37,21 @@ void Clusterer::Clustering(const char *inputFile) {
     std::cout << "Indices size: " << indices.size() << std::endl;
 
     while (!indices.empty()) {
-
       std::vector<int> nextIndices;
       nextIndices.push_back(indices[0]);
       double meanX = x[indices[0]], meanY = y[indices[0]];
       int clusterSize = 1;
 
       for (int i = 1; i < indices.size(); i++) {
+        for (auto j : nextIndices)
+          std::cout << "(" << x[j] << "," << y[j] << ") ";
+        std::cout << std::endl;
         int index = indices[i];
-
+        std::cout<< "index:" << index << std::endl;
         if (chipID[index] != chipID[indices[0]])
           continue;
 
+        std::cout << "here" <<std::endl;
         bool isValid = false;
         for (int j : nextIndices) {
           if (std::abs(x[index] - x[j]) + std::abs(y[index] - y[j]) <= 1)
@@ -82,8 +86,7 @@ void Clusterer::Clustering(const char *inputFile) {
 
       // cluster class implementation needed
       Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
-                      static_cast<unsigned>(ievent), minX, minY, shape, meanX,
-                      meanY, clusterSize);
+                      static_cast<unsigned>(ievent), meanX, meanY, minX, minY, shape);
 
       fClusters.push_back(cluster);
 

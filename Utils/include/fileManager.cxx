@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-#include "fileManager.hh"
+#include "fileManager.h"
 
 /*
     PUBLIC
