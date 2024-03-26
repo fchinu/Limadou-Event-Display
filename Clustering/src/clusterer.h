@@ -16,5 +16,7 @@ protected:
 
 private:
   std::vector<Cluster> fClusters;
-  void getRecursiveCluster(std::vector<int> &currentCluster, int index, std::vector<int> &indices, double *chipID, double* x, double* y);
+  void getRecursiveCluster(std::vector<int> &currentCluster, int index,
+                           std::vector<int> &indices, double *chipID, double *x,
+                           double *y);
 };

@@ -12,18 +12,21 @@ Clusterer::Clusterer() {}
 
 Clusterer::~Clusterer() {}
 
-void Clusterer::getRecursiveCluster(std::vector<int> &currentCluster, int index, std::vector<int> &indices, double *chipID, double* x, double* y) {
+void Clusterer::getRecursiveCluster(std::vector<int> &currentCluster, int index,
+                                    std::vector<int> &indices, double *chipID,
+                                    double *x, double *y) {
   // recursive function to find all connected clusters
 
   // find all connected indices
   for (auto i : indices) {
     if (std::find(currentCluster.begin(), currentCluster.end(), i) !=
-        currentCluster.end()) 
+        currentCluster.end())
       continue; // already in the cluster
     else {
       int count = 0;
       for (auto j : currentCluster) {
-        if (chipID[i]==chipID[j] && std::abs(x[i] - x[j]) + std::abs(y[i] - y[j]) <= 1) {
+        if (chipID[i] == chipID[j] &&
+            std::abs(x[i] - x[j]) + std::abs(y[i] - y[j]) <= 1) {
           count++;
           currentCluster.push_back(i);
           getRecursiveCluster(currentCluster, i, indices, chipID, x, y);
@@ -66,7 +69,7 @@ void Clusterer::Clustering(const char *inputFile) {
       }
       std::cout << std::endl;
 
-      std::vector<int> currentCluster {indices[0]};
+      std::vector<int> currentCluster{indices[0]};
       getRecursiveCluster(currentCluster, indices[0], indices, chipID, x, y);
 
       double meanX = x[indices[0]], meanY = y[indices[0]];
@@ -107,9 +110,14 @@ void Clusterer::Clustering(const char *inputFile) {
       fClusters.push_back(cluster);
 
       // Remove processed indices from the vector
-      indices.erase(std::remove_if(indices.begin(), indices.end(), [&currentCluster](int i) {
-        return std::find(currentCluster.begin(), currentCluster.end(), i) !=
-               currentCluster.end(); }), indices.end());
+      indices.erase(std::remove_if(indices.begin(), indices.end(),
+                                   [&currentCluster](int i) {
+                                     return std::find(currentCluster.begin(),
+                                                      currentCluster.end(),
+                                                      i) !=
+                                            currentCluster.end();
+                                   }),
+                    indices.end());
 
       currentCluster.clear();
     }
