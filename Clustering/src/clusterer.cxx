@@ -12,6 +12,33 @@ Clusterer::Clusterer() {}
 
 Clusterer::~Clusterer() {}
 
+void Clusterer::getRecursiveCluster(std::vector<int> &currentCluster, int index,
+                                    std::vector<int> &indices, double *chipID,
+                                    double *x, double *y) {
+  // recursive function to find all connected clusters
+
+  // find all connected indices
+  for (auto i : indices) {
+    if (std::find(currentCluster.begin(), currentCluster.end(), i) !=
+        currentCluster.end())
+      continue; // already in the cluster
+    else {
+      int count = 0;
+      for (auto j : currentCluster) {
+        if (chipID[i] == chipID[j] &&
+            std::abs(x[i] - x[j]) + std::abs(y[i] - y[j]) <= 1) {
+          count++;
+          currentCluster.push_back(i);
+          getRecursiveCluster(currentCluster, i, indices, chipID, x, y);
+        }
+      }
+
+      if (count == 0) // no connected indices
+        return;
+    }
+  }
+}
+
 void Clusterer::Clustering(const char *inputFile) {
 
   // add filemanager
@@ -37,36 +64,29 @@ void Clusterer::Clustering(const char *inputFile) {
 
     while (!indices.empty()) {
 
-      std::vector<int> nextIndices;
-      nextIndices.push_back(indices[0]);
+      for (auto i : indices) {
+        std::cout << i << "\t";
+      }
+      std::cout << std::endl;
+
+      std::vector<int> currentCluster{indices[0]};
+      getRecursiveCluster(currentCluster, indices[0], indices, chipID, x, y);
+
       double meanX = x[indices[0]], meanY = y[indices[0]];
       int clusterSize = 1;
 
-      for (int i = 1; i < indices.size(); i++) {
-        int index = indices[i];
-
-        if (chipID[index] != chipID[indices[0]])
-          continue;
-
-        bool isValid = false;
-        for (int j : nextIndices) {
-          if (std::abs(x[index] - x[j]) + std::abs(y[index] - y[j]) <= 1)
-            isValid = true;
-        }
-
-        if (isValid) {
-          nextIndices.push_back(index);
-          meanX += x[index];
-          meanY += y[index];
-          clusterSize++;
-        }
+      for (auto i : currentCluster) {
+        std::cout << i << std::endl;
+        meanX += x[i];
+        meanY += y[i];
+        clusterSize++;
       }
 
-      size_t size = nextIndices.size();
+      size_t size = currentCluster.size();
       int xPos[size], yPos[size];
       for (int i = 0; i < size; i++) {
-        xPos[i] = int(x[nextIndices[i]]);
-        yPos[i] = int(y[nextIndices[i]]);
+        xPos[i] = int(x[currentCluster[i]]);
+        yPos[i] = int(y[currentCluster[i]]);
       }
 
       int minX = *std::min_element(xPos, xPos + size);
@@ -82,20 +102,24 @@ void Clusterer::Clustering(const char *inputFile) {
 
       // cluster class implementation needed
       Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
-                      static_cast<unsigned>(ievent), minX, minY, shape, meanX,
-                      meanY, clusterSize);
+                      static_cast<unsigned>(ievent), meanX, meanY, minX, minY,
+                      shape);
+
+      std::cout << "Cluster size " << cluster.GetClusterSize() << std::endl;
 
       fClusters.push_back(cluster);
 
       // Remove processed indices from the vector
       indices.erase(std::remove_if(indices.begin(), indices.end(),
-                                   [&nextIndices](int i) {
-                                     return std::find(nextIndices.begin(),
-                                                      nextIndices.end(),
-                                                      i) != nextIndices.end();
+                                   [&currentCluster](int i) {
+                                     return std::find(currentCluster.begin(),
+                                                      currentCluster.end(),
+                                                      i) !=
+                                            currentCluster.end();
                                    }),
                     indices.end());
-      indices.erase(indices.begin());
+
+      currentCluster.clear();
     }
   }
 }
