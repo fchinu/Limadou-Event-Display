@@ -8,9 +8,151 @@
 #include "../../Utils/include/fileManager.h"
 #include "clusterer.h"
 
+/*  PUBLIC  */
+
 Clusterer::Clusterer() {}
 
 Clusterer::~Clusterer() {}
+
+/**
+ * @brief Cluster the hits of the input file. Different events are clustered
+ * with EventClustering.
+ */
+void Clusterer::Clustering(const char *inputFile) {
+
+  // add filemanager
+  FileManager inputData(inputFile);
+
+  std::unordered_map<int, std::vector<int>> eventIndices;
+
+  int nEvents = 0;
+  double *events = inputData.unique("event_count", nEvents);
+  for (int i = 0; i < nEvents; i++) {
+    std::cout << "Event " << i << std::endl;
+    EventClustering(inputData, static_cast<int>(events[i]));
+  }
+}
+
+/*  PROTECTED   */
+
+/**
+ * @brief Cluster the hits of a single event.
+ * Algorithm: Checks the first hit in the event, verifying if there are hits on
+ * its left, right, above or below it. If there are, they are added to the
+ * cluster (in a vector) and marked in a vector of bools. Then loops on the
+ * newly found hits looking for neighboring hits. If there are any, they are
+ * included in a new newly-found-hits vector and loop again. Otherwise, the
+ * cluster is initialised with the hits found. After a cluster is found, it
+ * moves on the following hit (not in the cluster) and repeats.
+ */
+void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
+
+  std::unordered_map<int, std::vector<int>> eventIndices;
+
+  double *event = inputData.getColumn("event_count");
+  double *chipID = inputData.getColumn("chip_id(decimal)");
+  double *x = inputData.getColumn("hit_x");
+  double *y = inputData.getColumn("hit_y");
+
+  for (int irow = 0; irow < inputData.getNRows(); irow++) {
+    eventIndices[event[irow]].push_back(irow);
+  }
+
+  std::vector<int> &indices = eventIndices[ievent];
+
+  while (!indices.empty()) {
+
+    std::vector<bool> inCluster(indices.size(), false);
+    std::vector<int> clusterIndeces;
+    clusterIndeces.push_back(indices[0]);
+    inCluster[0] = true;
+
+    bool found = true;
+    std::vector<int> foundIndices;
+    std::vector<int> newFoundIndices;
+    foundIndices.push_back(indices[0]);
+
+    double meanX = x[indices[0]], meanY = y[indices[0]];
+    int clusterSize = 1;
+
+    while (found) {
+
+      found = false;
+
+      for (int i = 0; i < foundIndices.size(); i++) {
+        for (int j = 0; j < indices.size(); j++) {
+
+          if (inCluster[j])
+            continue;
+
+          if (chipID[indices[j]] != chipID[foundIndices[i]])
+            continue;
+
+          if (std::abs(x[indices[j]] - x[foundIndices[i]]) +
+                  std::abs(y[indices[j]] - y[foundIndices[i]]) <=
+              1) {
+            clusterIndeces.push_back(indices[j]);
+            meanX += x[indices[j]];
+            meanY += y[indices[j]];
+            clusterSize++;
+            inCluster[j] = true;
+            found = true;
+            newFoundIndices.push_back(indices[j]);
+          }
+        }
+      }
+      foundIndices.clear();
+      foundIndices = newFoundIndices;
+      newFoundIndices.clear();
+    }
+
+    foundIndices.clear();
+    newFoundIndices.clear();
+
+    size_t size = clusterIndeces.size();
+    int xPos[size], yPos[size];
+    for (int i = 0; i < size; i++) {
+      xPos[i] = int(x[clusterIndeces[i]]);
+      yPos[i] = int(y[clusterIndeces[i]]);
+    }
+
+    int minX = *std::min_element(xPos, xPos + size);
+    int maxY = *std::max_element(yPos, yPos + size);
+
+    meanX /= clusterSize;
+    meanY /= clusterSize;
+
+    // cluster shape
+    std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> shape = {0};
+    for (int i = 0; i < size; i++)
+      shape[(maxY - yPos[i])].set(MAX_CLUSTER_COLS - 1 - (xPos[i] - minX));
+
+    // cluster class implementation needed
+    Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
+                    static_cast<unsigned>(ievent), meanX, meanY, minX, maxY,
+                    shape);
+
+    fClusters.push_back(cluster);
+
+    /*
+    // visualize cluster on terminal
+    std::cout << "Cluster size " << cluster.GetClusterSize() << std::endl;
+    for (auto i : cluster.GetShape()) {
+      std::cout << i << std::endl;
+    }
+    */
+
+    indices.erase(std::remove_if(indices.begin(), indices.end(),
+                                 [&clusterIndeces](int i) {
+                                   return std::find(clusterIndeces.begin(),
+                                                    clusterIndeces.end(),
+                                                    i) != clusterIndeces.end();
+                                 }),
+                  indices.end());
+  }
+}
+
+/*  PRIVATE  */
 
 void Clusterer::getRecursiveCluster(std::vector<int> &currentCluster, int index,
                                     std::vector<int> &indices, double *chipID,
@@ -35,91 +177,6 @@ void Clusterer::getRecursiveCluster(std::vector<int> &currentCluster, int index,
 
       if (count == 0) // no connected indices
         return;
-    }
-  }
-}
-
-void Clusterer::Clustering(const char *inputFile) {
-
-  // add filemanager
-  FileManager inputData(inputFile);
-
-  std::unordered_map<int, std::vector<int>> eventIndices;
-
-  double *event = inputData.getColumn("event_count");
-  double *chipID = inputData.getColumn("chip_id(decimal)");
-  double *x = inputData.getColumn("hit_x");
-  double *y = inputData.getColumn("hit_y");
-
-  for (int irow = 0; irow < inputData.getNRows(); irow++) {
-    eventIndices[event[irow]].push_back(irow);
-  }
-
-  for (auto it = eventIndices.begin(); it != eventIndices.end(); ++it) {
-    int ievent = it->first;
-    std::vector<int> &indices = it->second;
-
-    std::cout << "Event " << ievent << std::endl;
-    std::cout << "Indices size: " << indices.size() << std::endl;
-
-    while (!indices.empty()) {
-
-      for (auto i : indices) {
-        std::cout << i << "\t";
-      }
-      std::cout << std::endl;
-
-      std::vector<int> currentCluster{indices[0]};
-      getRecursiveCluster(currentCluster, indices[0], indices, chipID, x, y);
-
-      double meanX = x[indices[0]], meanY = y[indices[0]];
-      int clusterSize = 1;
-
-      for (auto i : currentCluster) {
-        std::cout << i << std::endl;
-        meanX += x[i];
-        meanY += y[i];
-        clusterSize++;
-      }
-
-      size_t size = currentCluster.size();
-      int xPos[size], yPos[size];
-      for (int i = 0; i < size; i++) {
-        xPos[i] = int(x[currentCluster[i]]);
-        yPos[i] = int(y[currentCluster[i]]);
-      }
-
-      int minX = *std::min_element(xPos, xPos + size);
-      int minY = *std::min_element(yPos, yPos + size);
-
-      meanX /= clusterSize;
-      meanY /= clusterSize;
-
-      // cluster shape
-      std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> shape = {0};
-      for (int i = 0; i < size; i++)
-        shape[yPos[i] - minY].set(xPos[i] - minX);
-
-      // cluster class implementation needed
-      Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
-                      static_cast<unsigned>(ievent), meanX, meanY, minX, minY,
-                      shape);
-
-      std::cout << "Cluster size " << cluster.GetClusterSize() << std::endl;
-
-      fClusters.push_back(cluster);
-
-      // Remove processed indices from the vector
-      indices.erase(std::remove_if(indices.begin(), indices.end(),
-                                   [&currentCluster](int i) {
-                                     return std::find(currentCluster.begin(),
-                                                      currentCluster.end(),
-                                                      i) !=
-                                            currentCluster.end();
-                                   }),
-                    indices.end());
-
-      currentCluster.clear();
     }
   }
 }

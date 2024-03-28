@@ -20,7 +20,15 @@ void fillBinaryMatrix(TH2D *histCluster, const uint8_t *ExampleArray, int size,
 
 void ClusterShapeDisplay() {
   // need to link t cluster class
-  uint8_t ExampleArray[] = {16, 48, 48, 224, 32, 0, 0, 0}; // Example array
+  uint8_t ExampleArray[] = {0b00000010,
+                            0b00000011,
+                            0b00000010,
+                            0b00000000,
+                            0b00000000,
+                            0b00000000,
+                            0b00000000,
+                            0b00000000};
+  //uint8_t ExampleArray[] = {16, 48, 48, 224, 32, 0, 0, 0}; // Example array
   // uint8_t ExampleArray[] = {192, 192, 80, 248, 16, 16, 16, 16};
   int size = sizeof(ExampleArray) / sizeof(ExampleArray[0]);
   int max_length = 8;
@@ -60,7 +68,7 @@ void ClusterShapeDisplay() {
   PointGraph->Draw("P,same");
 
   canvas->Update();
-  canvas->SaveAs("clusterShape1.png");
+  canvas->SaveAs("clusterShape3.png");
 
   delete histCluster;
   delete canvas;
