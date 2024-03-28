@@ -53,13 +53,14 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
   double *chipID = inputData.getColumn("chip_id(decimal)");
   double *x = inputData.getColumn("hit_x");
   double *y = inputData.getColumn("hit_y");
+  
 
   for (int irow = 0; irow < inputData.getNRows(); irow++) {
     eventIndices[event[irow]].push_back(irow);
   }
 
   std::vector<int> &indices = eventIndices[ievent];
-
+  int ClusterID=0;
   while (!indices.empty()) {
 
     std::vector<bool> inCluster(indices.size(), false);
@@ -74,6 +75,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
 
     double meanX = x[indices[0]], meanY = y[indices[0]];
     int clusterSize = 1;
+    
 
     while (found) {
 
@@ -121,6 +123,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
 
     meanX /= clusterSize;
     meanY /= clusterSize;
+  
 
     // cluster shape
     std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> shape = {0};
@@ -149,6 +152,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
                                                     i) != clusterIndeces.end();
                                  }),
                   indices.end());
+    ClusterID++;
   }
 }
 
