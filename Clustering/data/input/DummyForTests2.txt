@@ -1,0 +1,5 @@
+event_count chip_id(decimal) hit_x hit_y
+1 1 4 5
+1 1 4 6
+1 1 5 6 
+1 1 6 7

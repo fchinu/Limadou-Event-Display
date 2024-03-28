@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../Utils/include/fileManager.h"
 #include "../include/Cluster.h"
 #include <vector>
 
@@ -13,6 +14,7 @@ public:
 
 protected:
   void clearClusters() { fClusters.clear(); };
+  void EventClustering(FileManager &inputData, const int event);
 
 private:
   std::vector<Cluster> fClusters;
