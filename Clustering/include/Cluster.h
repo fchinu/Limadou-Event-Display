@@ -30,7 +30,7 @@ public:
   inline float GetMeanY() const { return fMeanY; }
   inline unsigned GetClusterSize() const { return fClusterSize; }
   inline unsigned GetClusterID() const { return fClusterID; }
-  
+
   void PrintCluster() const;
 
 private:

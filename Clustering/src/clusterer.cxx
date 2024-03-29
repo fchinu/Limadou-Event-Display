@@ -5,8 +5,8 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "../../Utils/include/fileManager.h"
 #include "../../Clustering/include/clusterer.h"
+#include "../../Utils/include/fileManager.h"
 
 /*  PUBLIC  */
 
@@ -134,10 +134,8 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
 
     fClusters.push_back(cluster);
 
-    
     // visualize cluster on terminal
     cluster.PrintCluster();
-    
 
     indices.erase(std::remove_if(indices.begin(), indices.end(),
                                  [&clusterIndeces](int i) {
