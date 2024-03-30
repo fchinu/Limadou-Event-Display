@@ -6,4 +6,4 @@ from ROOT import Clusterer
 
 if __name__ == '__main__':
     c = Clusterer()
-    c.Clustering("Clustering/data/input/DummyForTests1.txt")
+    c.Clustering("Clustering/data/input/DummyForTests3.txt")
