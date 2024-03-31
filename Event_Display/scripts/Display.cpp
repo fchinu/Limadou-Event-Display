@@ -20,7 +20,7 @@ void Display() {
   const double chipGapX = 0.0150; // cm
   const double chipGapY = 0.0150; // cm
 
-  unsigned chipIDs[2][5] = {{0, 1, 2, 3, 4}, {5, 6, 7, 8, 9}};
+  unsigned chipIDs[5][2] = {{0, 5}, {1, 6}, {2, 7}, {3, 8}, {4, 9}};
 
   const unsigned nModules = 3;
   const double moduleDisalignmentX = 0.;       // cm
@@ -33,8 +33,8 @@ void Display() {
   DetectorChip *chip =
       new DetectorChip(1, nPixelsX, nPixelsY, pxSizeX, pxSizeY, sizeZ);
   // chip->Show();
-  DetectorModule *module = new DetectorModule(0, nChipsX, nChipsY, chipGapX,
-                                              chipGapY, sizeZ, *chip, chipIDs);
+  DetectorModule *module =
+      new DetectorModule(0, chipGapX, chipGapY, sizeZ, *chip, chipIDs);
   // module->Show();
   Detector *detector =
       new Detector(nModules, moduleDisalignmentX, moduleDisalignmentY,

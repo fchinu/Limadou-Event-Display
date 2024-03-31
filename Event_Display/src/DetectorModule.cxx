@@ -12,38 +12,30 @@
 // #include "../include/DetectorModule.h"
 #include "../include/Materials.h"
 
-template <size_t chipsY, size_t chipsX>
-DetectorModule::DetectorModule(const unsigned moduleID, const unsigned nChipsX,
-                               const unsigned nChipsY, const double chipGapX,
+template <size_t nChipsX, size_t nChipsY>
+DetectorModule::DetectorModule(const unsigned moduleID, const double chipGapX,
                                const double chipGapY, const double sizeZ,
                                const DetectorChip &chip,
-                               unsigned (&chipIDs)[chipsY][chipsX])
+                               unsigned (&chipIDs)[nChipsX][nChipsY])
     : fModuleID(moduleID), fNChipsX(nChipsX), fNChipsY(nChipsY),
       fChipGapX(chipGapX), fChipGapY(chipGapY), fSizeZ(sizeZ), fChip(chip),
-      fModuleVolume(NULL) {
+      fModuleVolume(NULL), fInit(true) {
 
   fSizeX = nChipsX * chip.GetSizeX() + (nChipsX + 1) * chipGapX;
   fSizeY = nChipsY * chip.GetSizeY() + (nChipsY + 1) * chipGapY;
 
-  if (chipsY != nChipsY || chipsX != nChipsX) {
-    std::cerr << "Error: Chip ID array size does not match the number of chips "
-                 "in the module"
-              << std::endl;
-    return;
-  }
-
-  fChipIDs = new unsigned *[fNChipsY];
-  for (unsigned iy = 0; iy < fNChipsY; iy++) {
-    fChipIDs[iy] = new unsigned[fNChipsX];
-    for (unsigned ix = 0; ix < fNChipsX; ix++) {
-      fChipIDs[iy][ix] = chipIDs[iy][ix];
+  fChipIDs = new unsigned *[fNChipsX];
+  for (unsigned ix = 0; ix < fNChipsY; ix++) {
+    fChipIDs[ix] = new unsigned[fNChipsY];
+    for (unsigned iy = 0; iy < fNChipsY; iy++) {
+      fChipIDs[ix][iy] = chipIDs[ix][iy];
     }
   }
 }
 
 DetectorModule::~DetectorModule() {
-  for (unsigned iy = 0; iy < fNChipsY; iy++) {
-    delete[] fChipIDs[iy];
+  for (unsigned ix = 0; ix < fNChipsX; ix++) {
+    delete[] fChipIDs[ix];
   }
   delete[] fChipIDs;
   delete fModuleVolume;
@@ -56,6 +48,39 @@ TGeoMedium *DetectorModule::GetModuleMedium(const unsigned mediumID) {
   Carbon C;
   return new TGeoMedium("carbon", mediumID,
                         new TGeoMaterial(C.fMaterial, C.fZ, C.fA, C.fDensity));
+}
+
+template <size_t nChipsX, size_t nChipsY>
+void DetectorModule::Init(const unsigned moduleID, const double chipGapX,
+                          const double chipGapY, const double sizeZ,
+                          const DetectorChip &chip,
+                          unsigned (&chipIDs)[nChipsX][nChipsY]) {
+
+  if (fInit) {
+    std::cerr << "Module already initialized!" << std::endl;
+    return;
+  }
+
+  fModuleID = moduleID;
+  fNChipsX = nChipsX;
+  fNChipsY = nChipsY;
+  fChipGapX = chipGapX;
+  fChipGapY = chipGapY;
+  fSizeZ = sizeZ;
+  fChip = chip;
+
+  fSizeX = nChipsX * chip.GetSizeX() + (nChipsX + 1) * chipGapX;
+  fSizeY = nChipsY * chip.GetSizeY() + (nChipsY + 1) * chipGapY;
+
+  fChipIDs = new unsigned *[fNChipsX];
+  for (unsigned ix = 0; ix < fNChipsX; ix++) {
+    fChipIDs[ix] = new unsigned[fNChipsY];
+    for (unsigned iy = 0; iy < fNChipsY; iy++) {
+      fChipIDs[ix][iy] = chipIDs[ix][iy];
+    }
+  }
+
+  fInit = true;
 }
 
 /**
@@ -92,9 +117,9 @@ void DetectorModule::Show() {
 
   TGeoMedium *chipMedium = fChip.GetChipMedium(3);
   TGeoVolume *chip;
-  for (unsigned iy = 0; iy < fNChipsY; iy++) {
-    for (unsigned ix = 0; ix < fNChipsX; ix++) {
-      fChip.Build(geometry, chipMedium, Form("chip_%d", fChipIDs[iy][ix]));
+  for (unsigned ix = 0; ix < fNChipsX; ix++) {
+    for (unsigned iy = 0; iy < fNChipsY; iy++) {
+      fChip.Build(geometry, chipMedium, Form("chip_%d", fChipIDs[ix][iy]));
       chip = fChip.GetChipVolume();
       chip->SetLineColor(kRed);
       world->AddNodeOverlap(chip, 1,

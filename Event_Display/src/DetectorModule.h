@@ -11,19 +11,22 @@ public:
   DetectorModule(){};
   /**
    * @brief Construct a new Detector Module object
+   *
+   *
+   * @tparam nChipsX Number of chips in the x direction
+   * @tparam nChipsY Number of chips in the y direction
+   *
    * @param moduleID Module ID
-   * @param nChipsX Number of chips in the x direction
-   * @param nChipsY Number of chips in the y direction
    * @param chipGapX Gap between chips in the x direction (cm)
    * @param chipGapY Gap between chips in the y direction (cm)
    * @param sizeZ Module size in the z direction (cm)
    * @param chip Chip object (all chips on the module are assumed identical)
    */
-  template <size_t chipsY, size_t chipsX>
-  DetectorModule(const unsigned moduleID, const unsigned nChipsX,
-                 const unsigned nChipsY, const double chipGapX,
+  template <size_t nChipsX, size_t nChipsY>
+  DetectorModule(const unsigned moduleID, const double chipGapX,
                  const double chipGapY, const double sizeZ,
-                 const DetectorChip &chip, unsigned (&chipIDs)[chipsY][chipsX]);
+                 const DetectorChip &chip,
+                 unsigned (&chipIDs)[nChipsX][nChipsY]);
   ~DetectorModule();
 
   inline double GetSizeX() const { return fSizeX; };
@@ -57,17 +60,35 @@ public:
    */
   inline DetectorChip GetChip() const { return fChip; };
   inline unsigned GetChipID(const unsigned ix, const unsigned iy) const {
-    return fChipIDs[iy][ix];
+    return fChipIDs[ix][iy];
   };
   inline unsigned GetModuleID() const { return fModuleID; };
 
   inline TGeoVolume *GetModuleVolume() const { return fModuleVolume; };
   TGeoMedium *GetModuleMedium(const unsigned mediumID);
 
+  /**
+   * @brief Initialization function. Used in pythonization of the package.
+   *
+   * @tparam nChipsX Number of chips in the x direction
+   * @tparam nChipsY Number of chips in the y direction
+   *
+   * @param moduleID Module ID
+   * @param chipGapX Gap between chips in the x direction (cm)
+   * @param chipGapY Gap between chips in the y direction (cm)
+   * @param sizeZ Module size in the z direction (cm)
+   * @param chip Chip object (all chips on the module are assumed identical)
+   */
+  template <size_t nChipsX, size_t nChipsY>
+  void Init(const unsigned moduleID, const double chipGapX,
+            const double chipGapY, const double sizeZ, const DetectorChip &chip,
+            unsigned (&chipIDs)[nChipsX][nChipsY]);
   void Build(TGeoManager *geometry, TGeoMedium *medium, const char *moduleName);
   void Show();
 
 private:
+  bool fInit;
+
   unsigned fNChipsX;
   unsigned fNChipsY;
 

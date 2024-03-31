@@ -1,3 +1,4 @@
+#include <TCanvas.h>
 #include <TString.h>
 
 #include <TGeoManager.h>
@@ -29,6 +30,9 @@ Detector::~Detector() {
 }
 
 void Detector::Show() {
+
+  TCanvas *canvas = new TCanvas("canvas", "Detector display", 1000, 800);
+
   // initialize world sizes
   const double xSize = fModule.GetSizeX() + fModuleDisalignmentX;
   const double ySize = fModule.GetSizeY() + fModuleDisalignmentY;
@@ -79,8 +83,8 @@ void Detector::Show() {
                    new TGeoTranslation(xPosModule, yPosModule, zPosModule));
 
     // build chips of the module
-    for (unsigned iy = 0; iy < fModule.GetNChipsY(); iy++) {
-      for (unsigned ix = 0; ix < fModule.GetNChipsX(); ix++) {
+    for (unsigned ix = 0; ix < fModule.GetNChipsX(); ix++) {
+      for (unsigned iy = 0; iy < fModule.GetNChipsY(); iy++) {
         Chip.Build(
             geometry, chipMedium,
             Form("chip_%d", fModule.GetChipID(ix, iy) +
@@ -101,4 +105,5 @@ void Detector::Show() {
   world->SetAttVisibility(false);
 
   world->Draw("ogl");
+  canvas->Update();
 }
