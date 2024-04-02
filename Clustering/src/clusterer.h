@@ -17,7 +17,7 @@ public:
 
 protected:
   void clearClusters() { fClusters.clear(); };
-  std::vector<Cluster> EventClustering(FileManager &inputData, const int event);
+  void EventClustering(FileManager &inputData, const int event);
 
 private:
   std::vector<Cluster> fClusters;

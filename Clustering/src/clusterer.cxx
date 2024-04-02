@@ -37,25 +37,25 @@ void Clusterer::Clustering(const char *inputFile) {
   // the future if we will want a configuration file
   // root["tree"]["clusterer"]["name"].As<std::string>().c_str());
   TTree *tree = new TTree("Clusters_tree", "Clusters_tree");
-  std::vector<Cluster> clusterVector;
-  std::vector<std::vector<Cluster>> clustersVector;
+  std::vector<Cluster> EventClusters;
+  std::vector<std::vector<Cluster>> RunClusters;
 
   int nEvents = 0;
   double *events = inputData.unique("event_count", nEvents);
 
-  clustersVector.reserve(nEvents);
-  tree->Branch("Clusters", &clusterVector);
+  RunClusters.reserve(nEvents);
+  tree->Branch("Clusters", &EventClusters);
   for (int i = 0; i < nEvents; i++) {
 
     std::cout << std::endl;
     std::cout << "Event " << events[i] << std::endl;
     EventClustering(inputData, static_cast<int>(events[i]));
 
-    clusterVector = fClusters;
-    clustersVector.push_back(clusterVector);
+    EventClusters = fClusters;
+    RunClusters.push_back(EventClusters);
 
     std::cout << "\n\n vector\n";
-    for (auto cluster : clusterVector) {
+    for (auto cluster : EventClusters) {
       cluster.Print();
     }
     tree->Fill();
