@@ -33,7 +33,7 @@ public:
 
   void PrintCluster() const;
 
-  std::bitset<MAX_CLUSTER_COLS> operator[] (int idx) {return fShape[idx];}
+  std::bitset<MAX_CLUSTER_COLS> operator[](int idx) { return fShape[idx]; }
 
 private:
   unsigned fChipID;

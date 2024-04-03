@@ -145,7 +145,8 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
                                  }),
                   indices.end());
   }
-  std::cout<<"----------------------------------------------------"<<std::endl;
+  std::cout << "----------------------------------------------------"
+            << std::endl;
   Projections2D a(fClusters);
 }
 

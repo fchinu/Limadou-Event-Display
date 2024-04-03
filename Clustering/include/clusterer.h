@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Utils/include/fileManager.h"
 #include "Clustering/include/Cluster.h"
 #include "Clustering/include/Projections2D.h"
+#include "Utils/include/fileManager.h"
 #include <vector>
 
 class Clusterer {
