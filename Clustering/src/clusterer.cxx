@@ -5,8 +5,8 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "../../Clustering/include/clusterer.h"
-#include "../../Utils/include/fileManager.h"
+#include "Clustering/include/clusterer.h"
+#include "Utils/include/fileManager.h"
 
 /*  PUBLIC  */
 
@@ -125,7 +125,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
     // cluster shape
     std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> shape = {0};
     for (int i = 0; i < size; i++)
-      shape[(maxY - yPos[i])].set(MAX_CLUSTER_COLS - 1 - (xPos[i] - minX));
+      shape[(maxY - yPos[i])].set((xPos[i] - minX));
 
     // cluster class implementation needed
     Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
@@ -145,6 +145,8 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
                                  }),
                   indices.end());
   }
+  std::cout<<"----------------------------------------------------"<<std::endl;
+  Projections2D a(fClusters);
 }
 
 /*  PRIVATE  */

@@ -1,4 +1,4 @@
-#include "../../Clustering/include/Cluster.h"
+#include "Clustering/include/Cluster.h"
 
 Cluster::Cluster(
     unsigned chipID, unsigned eventID, unsigned clusterPositionX,
