@@ -50,7 +50,6 @@ void Clusterer::Clustering(const char *inputFile) {
 
     EventClusters = fClusters;
 
-
     std::cout << "\n\n vector\n";
     for (auto cluster : EventClusters) {
       cluster.Print();
@@ -77,8 +76,7 @@ void Clusterer::Clustering(const char *inputFile) {
  * cluster is initialised with the hits found. After a cluster is found, it
  * moves on the following hit (not in the cluster) and repeats.
  */
-void Clusterer::EventClustering(FileManager &inputData,
-                                                const int ievent) {
+void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
   std::unordered_map<int, std::vector<int>> eventIndices;
 
   double *event = inputData.getColumn("event_count");
