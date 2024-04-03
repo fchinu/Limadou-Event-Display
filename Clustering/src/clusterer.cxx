@@ -1,16 +1,23 @@
-
+#include <TFile.h>
+#include <TTree.h>
 #include <algorithm>
 #include <array>
 #include <bitset>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
-#include "../../Clustering/include/clusterer.h"
 #include "../../Utils/include/fileManager.h"
+#include "clusterer.h"
 
-/*  PUBLIC  */
+#ifdef __MAKECINT__
+#pragma link C++ class vector < Cluster> + ;
+#endif
 
-Clusterer::Clusterer() {}
+ClassImp(Clusterer)
+    /*  PUBLIC  */
+
+    Clusterer::Clusterer() {}
 
 Clusterer::~Clusterer() {}
 
@@ -24,13 +31,38 @@ void Clusterer::Clustering(const char *inputFile) {
   FileManager inputData(inputFile);
 
   std::unordered_map<int, std::vector<int>> eventIndices;
+  // TTree * tree = new
+  // TTree(root["tree"]["clusterer"]["name"].As<std::string>().c_str(),// for
+  // the future if we will want a configuration file
+  // root["tree"]["clusterer"]["name"].As<std::string>().c_str());
+  TTree *tree = new TTree("Clusters_tree", "Clusters_tree");
+  std::vector<Cluster> EventClusters;
 
   int nEvents = 0;
   double *events = inputData.unique("event_count", nEvents);
+
+  tree->Branch("Clusters", &EventClusters);
   for (int i = 0; i < nEvents; i++) {
-    std::cout << "Event " << i << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Event " << events[i] << std::endl;
     EventClustering(inputData, static_cast<int>(events[i]));
+
+    EventClusters = fClusters;
+
+
+    std::cout << "\n\n vector\n";
+    for (auto cluster : EventClusters) {
+      cluster.Print();
+    }
+    tree->Fill();
+    fClusters.clear();
   }
+
+  TFile outFile("ClusteringOutput.root", "recreate");
+  tree->Write();
+  outFile.Close();
+  delete tree;
 }
 
 /*  PROTECTED   */
@@ -45,25 +77,26 @@ void Clusterer::Clustering(const char *inputFile) {
  * cluster is initialised with the hits found. After a cluster is found, it
  * moves on the following hit (not in the cluster) and repeats.
  */
-void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
-
+void Clusterer::EventClustering(FileManager &inputData,
+                                                const int ievent) {
   std::unordered_map<int, std::vector<int>> eventIndices;
 
   double *event = inputData.getColumn("event_count");
   double *chipID = inputData.getColumn("chip_id(decimal)");
   double *x = inputData.getColumn("hit_x");
   double *y = inputData.getColumn("hit_y");
+  std::vector<int> clusterIDVettor;
 
   for (int irow = 0; irow < inputData.getNRows(); irow++) {
     eventIndices[event[irow]].push_back(irow);
   }
 
   std::vector<int> &indices = eventIndices[ievent];
-
   while (!indices.empty()) {
 
     std::vector<bool> inCluster(indices.size(), false);
     std::vector<int> clusterIndeces;
+
     clusterIndeces.push_back(indices[0]);
     inCluster[0] = true;
 
@@ -79,8 +112,8 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
 
       found = false;
 
-      for (int i = 0; i < foundIndices.size(); i++) {
-        for (int j = 0; j < indices.size(); j++) {
+      for (long unsigned int i = 0; i < foundIndices.size(); i++) {
+        for (long unsigned int j = 0; j < indices.size(); j++) {
 
           if (inCluster[j])
             continue;
@@ -111,7 +144,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
 
     size_t size = clusterIndeces.size();
     int xPos[size], yPos[size];
-    for (int i = 0; i < size; i++) {
+    for (long unsigned int i = 0; i < size; i++) {
       xPos[i] = int(x[clusterIndeces[i]]);
       yPos[i] = int(y[clusterIndeces[i]]);
     }
@@ -123,19 +156,19 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
     meanY /= clusterSize;
 
     // cluster shape
-    std::array<std::bitset<MAX_CLUSTER_COLS>, MAX_CLUSTER_ROWS> shape = {0};
-    for (int i = 0; i < size; i++)
-      shape[(maxY - yPos[i])].set(MAX_CLUSTER_COLS - 1 - (xPos[i] - minX));
+    uint64_t shape = 0;
+    for (size_t i = 0; i < size; i++) {
+      int position = (maxY - yPos[i]) * MAX_CLUSTER_COLS +
+                     (MAX_CLUSTER_COLS - 1 - (xPos[i] - minX));
+      uint64_t mask = 1ULL << position;
+      shape ^= mask;
+    }
 
-    // cluster class implementation needed
     Cluster cluster(static_cast<unsigned>(chipID[indices[0]]),
                     static_cast<unsigned>(ievent), meanX, meanY, minX, maxY,
-                    shape);
-
+                    clusterSize, shape);
+    clusterIDVettor.push_back(cluster.GetClusterID());
     fClusters.push_back(cluster);
-
-    // visualize cluster on terminal
-    cluster.PrintCluster();
 
     indices.erase(std::remove_if(indices.begin(), indices.end(),
                                  [&clusterIndeces](int i) {
@@ -145,6 +178,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
                                  }),
                   indices.end());
   }
+  return fClusters;
 }
 
 /*  PRIVATE  */
