@@ -1,16 +1,19 @@
 #pragma once
 
-#include "../../Utils/include/fileManager.h"
-#include "../include/Cluster.h"
+#include <TObject.h>
 #include <vector>
 
-class Clusterer {
+#include "../../Utils/include/fileManager.h"
+#include "../include/Cluster.h"
+
+class Clusterer : public TObject {
 
 public:
   Clusterer();
   ~Clusterer();
 
   void Clustering(const char *inputFile);
+  ClassDef(Clusterer, 1);
 
 protected:
   void clearClusters() { fClusters.clear(); };
