@@ -5,13 +5,14 @@
 #include "Utils/include/fileManager.h"
 #include <vector>
 
-class Clusterer {
+class Clusterer : public TObject {
 
 public:
   Clusterer();
   ~Clusterer();
 
   void Clustering(const char *inputFile);
+  ClassDef(Clusterer, 1);
 
 protected:
   void clearClusters() { fClusters.clear(); };
