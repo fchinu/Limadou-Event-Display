@@ -176,7 +176,7 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
                                  }),
                   indices.end());
   }
-  //return fClusters;
+  // return fClusters;
 }
 
 /*  PRIVATE  */
