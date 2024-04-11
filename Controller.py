@@ -22,9 +22,9 @@ def CompileMacros(**kwargs):
 
     ROOT.gSystem.AddIncludePath("-I" + ROOT.gSystem.GetWorkingDirectory())
     ROOT.gSystem.CompileMacro("Utils/include/fileManager.cxx", option, "", "Utils/build")
-    ROOT.gSystem.CompileMacro("Clustering/src/Projections2D.cxx", option, "", "Clustering/build")
-    ROOT.gSystem.CompileMacro("Clustering/src/Cluster.cxx", option, "", "Clustering/build")
+    ROOT.gSystem.CompileMacro("Clustering/include/Cluster.h", option, "", "Clustering/build")
     ROOT.gSystem.CompileMacro("Clustering/src/clusterer.cxx", option, "", "Clustering/build")
+    ROOT.gSystem.CompileMacro("Clustering/src/Projections2D.cxx", option, "", "Clustering/build")
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()

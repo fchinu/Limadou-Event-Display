@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Clustering/include/clusterer.h"
+#include "Clustering/src/clusterer.h"
 #include "Utils/include/fileManager.h"
 
 #ifdef __MAKECINT__
@@ -179,7 +179,6 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
   std::cout << "----------------------------------------------------"
             << std::endl;
   Projections2D a(fClusters);
-  return fClusters;
 }
 
 /*  PRIVATE  */

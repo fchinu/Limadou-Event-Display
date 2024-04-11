@@ -50,7 +50,7 @@ public:
 
   ClassDef(Cluster, 1);
 
-  std::bitset<MAX_CLUSTER_COLS> operator[](int idx) { return fShape[idx]; }
+  uint8_t operator[](int idx) { return (fShape >> idx) & 255; }
 
 private:
   unsigned fChipID;
