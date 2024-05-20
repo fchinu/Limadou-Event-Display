@@ -1,10 +1,9 @@
 #pragma once
 
-#include <TObject.h>
+#include "Clustering/include/Cluster.h"
+#include "Clustering/include/Projections2D.h"
+#include "Utils/include/fileManager.h"
 #include <vector>
-
-#include "../../Utils/include/fileManager.h"
-#include "../include/Cluster.h"
 
 class Clusterer : public TObject {
 
