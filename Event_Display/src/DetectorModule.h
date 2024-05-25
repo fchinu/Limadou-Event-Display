@@ -27,11 +27,25 @@ public:
                  const double chipGapY, const double sizeZ,
                  const DetectorChip &chip,
                  unsigned (&chipIDs)[nChipsX][nChipsY]);
+  DetectorModule(const DetectorModule &module);
   ~DetectorModule();
+
+  /**
+   * @brief Set the position of the module
+  */
+  inline void SetPosition(const double x, const double y, const double z) {
+    fPosX = x;
+    fPosY = y;
+    fPosZ = z;
+  };
 
   inline double GetSizeX() const { return fSizeX; };
   inline double GetSizeY() const { return fSizeY; };
   inline double GetSizeZ() const { return fSizeZ; };
+
+  inline double GetPosX() const { return fPosX; };
+  inline double GetPosY() const { return fPosY; };
+  inline double GetPosZ() const { return fPosZ; };
 
   inline unsigned GetNChipsX() const { return fNChipsX; };
   inline unsigned GetNChipsY() const { return fNChipsY; };
@@ -83,7 +97,8 @@ public:
   void Init(const unsigned moduleID, const double chipGapX,
             const double chipGapY, const double sizeZ, const DetectorChip &chip,
             unsigned (&chipIDs)[nChipsX][nChipsY]);
-  void Build(TGeoManager *geometry, TGeoMedium *medium, const char *moduleName);
+  TGeoVolume* Build(TGeoManager &geometry, TGeoMedium &medium, const char *moduleName);
+  void Print() const;
   void Show();
 
 private:
@@ -99,10 +114,37 @@ private:
   double fSizeY; // cm
   double fSizeZ; // cm
 
+  double fPosX; // cm, module position
+  double fPosY; // cm, module position
+  double fPosZ; // cm, module position
+
   unsigned fModuleID;
 
-  DetectorChip fChip;
+  DetectorChip fChip;  // chip model for this module
   unsigned **fChipIDs; // [fNChipsY][fNChipsX]
 
-  TGeoVolume *fModuleVolume;
+  TGeoVolume* fModuleVolume;
 };
+
+// Implementation of the template constructor
+template <size_t nChipsX, size_t nChipsY>
+DetectorModule::DetectorModule(const unsigned moduleID, const double chipGapX,
+                               const double chipGapY, const double sizeZ,
+                               const DetectorChip &chip,
+                               unsigned (&chipIDs)[nChipsX][nChipsY])
+    : fModuleID(moduleID), fNChipsX(nChipsX), fNChipsY(nChipsY),
+      fChipGapX(chipGapX), fChipGapY(chipGapY), fSizeZ(sizeZ), fChip(chip),
+      fModuleVolume(nullptr), fInit(true) {
+
+  fSizeX = nChipsX * chip.GetSizeX() + (nChipsX + 1) * chipGapX;
+  fSizeY = nChipsY * chip.GetSizeY() + (nChipsY + 1) * chipGapY;
+
+  fChipIDs = new unsigned *[fNChipsX];
+  for (unsigned ix = 0; ix < fNChipsX; ix++) { // Changed loop condition to fNChipsX
+    fChipIDs[ix] = new unsigned[fNChipsY];
+    for (unsigned iy = 0; iy < fNChipsY; iy++) {
+      fChipIDs[ix][iy] = chipIDs[ix][iy];
+    }
+  }
+
+}
