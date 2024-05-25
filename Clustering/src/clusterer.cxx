@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../Utils/include/fileManager.h"
-#include "clusterer.h"
+#include "Clustering/src/clusterer.h"
+#include "Utils/include/fileManager.h"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector < Cluster> + ;
@@ -176,7 +176,9 @@ void Clusterer::EventClustering(FileManager &inputData, const int ievent) {
                                  }),
                   indices.end());
   }
-  // return fClusters;
+  std::cout << "----------------------------------------------------"
+            << std::endl;
+  Projections2D a(fClusters);
 }
 
 /*  PRIVATE  */

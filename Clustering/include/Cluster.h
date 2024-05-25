@@ -50,6 +50,8 @@ public:
 
   ClassDef(Cluster, 1);
 
+  uint8_t operator[](int idx) { return (fShape >> idx) & 255; }
+
 private:
   unsigned fChipID;
   unsigned fEventID;
