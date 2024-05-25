@@ -31,7 +31,7 @@ if __name__ == '__main__' :
 
     nModules = 3
     moduleDisalignmentX = 0.       # cm
-    moduleDisalignmentY = 0.722312 # cm
+    moduleDisalignmentY = 0.       # cm
     modulePosZ = np.array([0., 0.85, 1.7], dtype=np.double)      # cm
     moduleIDs = np.array([0, 1, 2], dtype=np.uintc)
 
