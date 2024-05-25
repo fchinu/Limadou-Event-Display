@@ -2,8 +2,8 @@
 
 #include "../src/DetectorChip.h"
 #include "../src/DetectorModule.h"
-#include "../src/Geometry.h"
 #include "../src/Display.h"
+#include "../src/Geometry.h"
 
 #pragma once
 
@@ -15,5 +15,4 @@ void LoadMacros() {
   gSystem->CompileMacro("../src/DetectorModule.cxx", "kg", "", "../build");
   gSystem->CompileMacro("../src/Geometry.cxx", "kg", "", "../build");
   gSystem->CompileMacro("../src/Display.cxx", "kg", "", "../build");
-  
 }

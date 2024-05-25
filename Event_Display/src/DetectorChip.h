@@ -23,14 +23,14 @@ public:
                const double pxSizeY, const double sizeZ)
       : fChipID(chipID), fNPixelsX(nPixelsX), fNPixelsY(nPixelsY),
         fPxSizeX(pxSizeX), fPxSizeY(pxSizeY), fSizeX(nPixelsX * pxSizeX),
-        fSizeY(nPixelsY * pxSizeY), fSizeZ(sizeZ),
-        fPosX(0.), fPosY(0.), fPosZ(0.), fChipVolume(nullptr){};
+        fSizeY(nPixelsY * pxSizeY), fSizeZ(sizeZ), fPosX(0.), fPosY(0.),
+        fPosZ(0.), fChipVolume(nullptr){};
   DetectorChip(const DetectorChip &chip)
       : fChipID(chip.fChipID), fNPixelsX(chip.fNPixelsX),
         fNPixelsY(chip.fNPixelsY), fPxSizeX(chip.fPxSizeX),
         fPxSizeY(chip.fPxSizeY), fSizeX(chip.fSizeX), fSizeY(chip.fSizeY),
-        fSizeZ(chip.fSizeZ),
-        fPosX(0.), fPosY(0.), fPosZ(0.), fChipVolume(nullptr){};
+        fSizeZ(chip.fSizeZ), fPosX(0.), fPosY(0.), fPosZ(0.),
+        fChipVolume(nullptr){};
   ~DetectorChip() {}
   DetectorChip operator=(const DetectorChip &chip);
 
@@ -54,10 +54,11 @@ public:
   inline double GetPxSizeX() const { return fPxSizeX; }
   inline double GetPxSizeY() const { return fPxSizeY; }
 
-  inline TGeoVolume* GetChipVolume() const { return fChipVolume; }
-  TGeoMedium* GetChipMedium(const unsigned mediumID);
+  inline TGeoVolume *GetChipVolume() const { return fChipVolume; }
+  TGeoMedium *GetChipMedium(const unsigned mediumID);
 
-  TGeoVolume* Build(TGeoManager &geometry, TGeoMedium &medium, const char *chipName);
+  TGeoVolume *Build(TGeoManager &geometry, TGeoMedium &medium,
+                    const char *chipName);
   void Print() const;
   void Show();
 
@@ -78,5 +79,5 @@ private:
   double fPosY; // cm, chip position
   double fPosZ; // cm, chip position
 
-  TGeoVolume* fChipVolume;
+  TGeoVolume *fChipVolume;
 };

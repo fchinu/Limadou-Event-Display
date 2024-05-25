@@ -32,7 +32,7 @@ public:
 
   /**
    * @brief Set the position of the module
-  */
+   */
   inline void SetPosition(const double x, const double y, const double z) {
     fPosX = x;
     fPosY = y;
@@ -97,7 +97,8 @@ public:
   void Init(const unsigned moduleID, const double chipGapX,
             const double chipGapY, const double sizeZ, const DetectorChip &chip,
             unsigned (&chipIDs)[nChipsX][nChipsY]);
-  TGeoVolume* Build(TGeoManager &geometry, TGeoMedium &medium, const char *moduleName);
+  TGeoVolume *Build(TGeoManager &geometry, TGeoMedium &medium,
+                    const char *moduleName);
   void Print() const;
   void Show();
 
@@ -123,7 +124,7 @@ private:
   DetectorChip fChip;  // chip model for this module
   unsigned **fChipIDs; // [fNChipsY][fNChipsX]
 
-  TGeoVolume* fModuleVolume;
+  TGeoVolume *fModuleVolume;
 };
 
 // Implementation of the template constructor
@@ -140,11 +141,11 @@ DetectorModule::DetectorModule(const unsigned moduleID, const double chipGapX,
   fSizeY = nChipsY * chip.GetSizeY() + (nChipsY + 1) * chipGapY;
 
   fChipIDs = new unsigned *[fNChipsX];
-  for (unsigned ix = 0; ix < fNChipsX; ix++) { // Changed loop condition to fNChipsX
+  for (unsigned ix = 0; ix < fNChipsX;
+       ix++) { // Changed loop condition to fNChipsX
     fChipIDs[ix] = new unsigned[fNChipsY];
     for (unsigned iy = 0; iy < fNChipsY; iy++) {
       fChipIDs[ix][iy] = chipIDs[ix][iy];
     }
   }
-
 }

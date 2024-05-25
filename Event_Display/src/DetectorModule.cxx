@@ -46,8 +46,9 @@ DetectorModule::~DetectorModule() {
  */
 TGeoMedium *DetectorModule::GetModuleMedium(const unsigned mediumID) {
   Carbon C;
-  return new TGeoMedium("carbon", mediumID,
-                        new TGeoMaterial(C.GetName(), C.GetZ(), C.GetA(), C.GetDensity()));
+  return new TGeoMedium(
+      "carbon", mediumID,
+      new TGeoMaterial(C.GetName(), C.GetZ(), C.GetA(), C.GetDensity()));
 }
 
 template <size_t nChipsX, size_t nChipsY>
@@ -90,10 +91,10 @@ void DetectorModule::Init(const unsigned moduleID, const double chipGapX,
  * @param moduleName Name of the module
 
 */
-TGeoVolume* DetectorModule::Build(TGeoManager &geometry, TGeoMedium &medium,
-                           const char *moduleName) {
+TGeoVolume *DetectorModule::Build(TGeoManager &geometry, TGeoMedium &medium,
+                                  const char *moduleName) {
   fModuleVolume = geometry.MakeBox(moduleName, &medium, fSizeX / 2.,
-                                    fSizeY / 2., fSizeZ / 2.);
+                                   fSizeY / 2., fSizeZ / 2.);
   return fModuleVolume;
 }
 
