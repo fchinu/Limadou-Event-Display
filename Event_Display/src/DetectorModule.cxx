@@ -9,26 +9,27 @@
 
 #include "DetectorChip.h"
 #include "DetectorModule.h"
-// #include "../include/DetectorModule.h"
+
 #include "../include/Materials.h"
 
-template <size_t nChipsX, size_t nChipsY>
-DetectorModule::DetectorModule(const unsigned moduleID, const double chipGapX,
-                               const double chipGapY, const double sizeZ,
-                               const DetectorChip &chip,
-                               unsigned (&chipIDs)[nChipsX][nChipsY])
-    : fModuleID(moduleID), fNChipsX(nChipsX), fNChipsY(nChipsY),
-      fChipGapX(chipGapX), fChipGapY(chipGapY), fSizeZ(sizeZ), fChip(chip),
-      fModuleVolume(NULL), fInit(true) {
-
-  fSizeX = nChipsX * chip.GetSizeX() + (nChipsX + 1) * chipGapX;
-  fSizeY = nChipsY * chip.GetSizeY() + (nChipsY + 1) * chipGapY;
-
+DetectorModule::DetectorModule(const DetectorModule &module) {
+  fModuleID = module.fModuleID;
+  fNChipsX = module.fNChipsX;
+  fNChipsY = module.fNChipsY;
+  fChipGapX = module.fChipGapX;
+  fChipGapY = module.fChipGapY;
+  fSizeX = module.fSizeX;
+  fSizeY = module.fSizeY;
+  fSizeZ = module.fSizeZ;
+  fPosX = module.fPosX;
+  fPosY = module.fPosY;
+  fPosZ = module.fPosZ;
+  fChip = module.fChip;
   fChipIDs = new unsigned *[fNChipsX];
-  for (unsigned ix = 0; ix < fNChipsY; ix++) {
+  for (unsigned ix = 0; ix < fNChipsX; ix++) {
     fChipIDs[ix] = new unsigned[fNChipsY];
     for (unsigned iy = 0; iy < fNChipsY; iy++) {
-      fChipIDs[ix][iy] = chipIDs[ix][iy];
+      fChipIDs[ix][iy] = module.fChipIDs[ix][iy];
     }
   }
 }
@@ -38,7 +39,6 @@ DetectorModule::~DetectorModule() {
     delete[] fChipIDs[ix];
   }
   delete[] fChipIDs;
-  delete fModuleVolume;
 }
 
 /**
@@ -46,8 +46,9 @@ DetectorModule::~DetectorModule() {
  */
 TGeoMedium *DetectorModule::GetModuleMedium(const unsigned mediumID) {
   Carbon C;
-  return new TGeoMedium("carbon", mediumID,
-                        new TGeoMaterial(C.fMaterial, C.fZ, C.fA, C.fDensity));
+  return new TGeoMedium(
+      "carbon", mediumID,
+      new TGeoMaterial(C.GetName(), C.GetZ(), C.GetA(), C.GetDensity()));
 }
 
 template <size_t nChipsX, size_t nChipsY>
@@ -90,10 +91,11 @@ void DetectorModule::Init(const unsigned moduleID, const double chipGapX,
  * @param moduleName Name of the module
 
 */
-void DetectorModule::Build(TGeoManager *geometry, TGeoMedium *medium,
-                           const char *moduleName) {
-  fModuleVolume = geometry->MakeBox(moduleName, medium, fSizeX / 2.,
-                                    fSizeY / 2., fSizeZ / 2.);
+TGeoVolume *DetectorModule::Build(TGeoManager &geometry, TGeoMedium &medium,
+                                  const char *moduleName) {
+  fModuleVolume = geometry.MakeBox(moduleName, &medium, fSizeX / 2.,
+                                   fSizeY / 2., fSizeZ / 2.);
+  return fModuleVolume;
 }
 
 /**
@@ -112,14 +114,14 @@ void DetectorModule::Show() {
   geometry->SetTopVisible(false);
 
   // module
-  DetectorModule::Build(geometry, GetModuleMedium(2), "module");
+  DetectorModule::Build(*geometry, *GetModuleMedium(2), "module");
   world->AddNode(fModuleVolume, 1, new TGeoTranslation(0, 0, 0));
 
   TGeoMedium *chipMedium = fChip.GetChipMedium(3);
   TGeoVolume *chip;
   for (unsigned ix = 0; ix < fNChipsX; ix++) {
     for (unsigned iy = 0; iy < fNChipsY; iy++) {
-      fChip.Build(geometry, chipMedium, Form("chip_%d", fChipIDs[ix][iy]));
+      fChip.Build(*geometry, *chipMedium, Form("chip_%d", fChipIDs[ix][iy]));
       chip = fChip.GetChipVolume();
       chip->SetLineColor(kRed);
       world->AddNodeOverlap(chip, 1,
@@ -133,4 +135,24 @@ void DetectorModule::Show() {
   world->SetVisibility(false);
 
   world->Draw("ogl");
+}
+
+void DetectorModule::Print() const {
+  std::cout << "Module ID: " << fModuleID << std::endl;
+  std::cout << "Number of chips in x: " << fNChipsX << std::endl;
+  std::cout << "Number of chips in y: " << fNChipsY << std::endl;
+  std::cout << "Chip gap in x: " << fChipGapX << " cm" << std::endl;
+  std::cout << "Chip gap in y: " << fChipGapY << " cm" << std::endl;
+  std::cout << "Module size in x: " << fSizeX << " cm" << std::endl;
+  std::cout << "Module size in y: " << fSizeY << " cm" << std::endl;
+  std::cout << "Module size in z: " << fSizeZ << " cm" << std::endl;
+  std::cout << "Module position: (" << fPosX << ", " << fPosY << ", " << fPosZ
+            << ") cm" << std::endl;
+  std::cout << "Chip IDs:" << std::endl;
+  for (unsigned ix = 0; ix < fNChipsX; ix++) {
+    for (unsigned iy = 0; iy < fNChipsY; iy++) {
+      std::cout << fChipIDs[ix][iy] << " ";
+    }
+    std::cout << std::endl;
+  }
 }
